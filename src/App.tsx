@@ -13,25 +13,60 @@ import SampleMarkdown from './components/SampleMarkdown';
 
 const templates: Template[] = [
   {
-    id: 'modern',
-    name: 'Modern',
-    description: 'Clean, contemporary design with gradient header',
-    targetRole: 'Frontend Developer',
-    preview: '/modern-preview.jpg',
+    id: 'google-standard',
+    name: 'Google Standard',
+    description: 'Google\'s preferred format for software engineering roles',
+    targetRole: 'Software Engineer',
+    preview: '/google-standard-preview.jpg',
   },
   {
-    id: 'professional',
-    name: 'Professional',
-    description: 'Classic, formal layout for corporate environments',
-    targetRole: 'Backend Developer',
-    preview: '/professional-preview.jpg',
+    id: 'google-standard-two-column',
+    name: 'Google Standard (2-Column)',
+    description: 'Two-column layout with skills sidebar',
+    targetRole: 'Software Engineer',
+    preview: '/google-standard-two-column-preview.jpg',
   },
   {
-    id: 'creative',
-    name: 'Creative',
-    description: 'Unique sidebar design for creative professionals',
-    targetRole: 'Full Stack Developer',
-    preview: '/creative-preview.jpg',
+    id: 'google-technical',
+    name: 'Google Technical',
+    description: 'Ultra-compact format for senior technical positions',
+    targetRole: 'Senior SWE / Tech Lead',
+    preview: '/google-technical-preview.jpg',
+  },
+  {
+    id: 'google-technical-two-column',
+    name: 'Google Technical (2-Column)',
+    description: 'Ultra-dense two-column technical layout',
+    targetRole: 'Senior SWE / Tech Lead',
+    preview: '/google-technical-two-column-preview.jpg',
+  },
+  {
+    id: 'google-sre',
+    name: 'Google SRE',
+    description: 'Optimized for Site Reliability Engineer positions',
+    targetRole: 'Site Reliability Engineer',
+    preview: '/google-sre-preview.jpg',
+  },
+  {
+    id: 'google-sre-two-column',
+    name: 'Google SRE (2-Column)',
+    description: 'SRE-focused two-column layout',
+    targetRole: 'Site Reliability Engineer',
+    preview: '/google-sre-two-column-preview.jpg',
+  },
+  {
+    id: 'google-compact',
+    name: 'Google Ultra-Compact',
+    description: 'Maximum information density for extensive experience',
+    targetRole: 'Any Technical Role',
+    preview: '/google-compact-preview.jpg',
+  },
+  {
+    id: 'google-executive',
+    name: 'Google Executive',
+    description: 'Leadership-focused layout for senior positions',
+    targetRole: 'Engineering Manager / Director',
+    preview: '/google-executive-preview.jpg',
   },
 ];
 
@@ -39,34 +74,50 @@ const defaultSections: CVSection[] = [
   {
     id: 'summary',
     type: 'professional-summary',
-    title: 'Professional Summary',
-    content: 'Experienced software developer with expertise in modern web technologies...',
+    title: 'Summary',
+    content: 'Software Engineer with 5+ years building scalable systems. Expert in distributed systems, algorithms, and system design. Led teams of 8+ engineers delivering products used by millions.',
     order: 0,
+    required: true,
+  },
+  {
+    id: 'experience',
+    type: 'work-experience',
+    title: 'Experience',
+    content: '### Senior Software Engineer | Meta\n*Jan 2022 - Present*\n• Led development of distributed caching system serving 100M+ requests/day, reducing latency by 40%\n• Designed and implemented microservices architecture supporting 50+ engineering teams\n• Mentored 5 junior engineers, with 100% promotion rate within 18 months\n• Technologies: Java, Python, Kubernetes, Redis, PostgreSQL\n\n### Software Engineer | Amazon\n*Jun 2019 - Dec 2021*\n• Built real-time analytics platform processing 1TB+ data daily with 99.9% uptime\n• Optimized recommendation algorithms improving click-through rates by 25%\n• Collaborated with ML teams to deploy models serving 10M+ customers\n• Technologies: Python, AWS, Spark, DynamoDB, Docker',
+    order: 1,
     required: true,
   },
   {
     id: 'skills',
     type: 'technical-skills',
     title: 'Technical Skills',
-    content: '- **Frontend:** React, TypeScript, Vue.js\n- **Backend:** Node.js, Python\n- **Database:** PostgreSQL, MongoDB',
-    order: 1,
+    content: '• **Languages:** Python, Java, C++, JavaScript, Go, SQL\n• **Systems:** AWS, GCP, Kubernetes, Docker, Redis, Kafka, Elasticsearch\n• **Databases:** PostgreSQL, MongoDB, DynamoDB, BigQuery\n• **ML/AI:** TensorFlow, PyTorch, Scikit-learn, Pandas, NumPy\n• **Tools:** Git, Jenkins, Terraform, Prometheus, Grafana',
+    order: 2,
     required: true,
   },
   {
-    id: 'experience',
-    type: 'work-experience',
-    title: 'Work Experience',
-    content: '### Senior Developer | Company Name\n*2021 - Present*\n- Led development of web applications\n- Mentored junior developers',
-    order: 2,
-    required: true,
+    id: 'projects',
+    type: 'projects',
+    title: 'Projects',
+    content: '### Distributed Task Scheduler\n*Python, Kubernetes, Redis*\n• Built fault-tolerant task scheduling system handling 1M+ jobs/day\n• Implemented auto-scaling reducing infrastructure costs by 30%\n• **[GitHub](https://github.com/username/task-scheduler)**\n\n### Real-time Chat Application\n*Node.js, WebSocket, MongoDB*\n• Developed chat platform supporting 10K+ concurrent users\n• Implemented end-to-end encryption and message persistence\n• **[Live Demo](https://chat-app-demo.com)**',
+    order: 3,
+    required: false,
   },
   {
     id: 'education',
     type: 'education',
     title: 'Education',
-    content: '### Bachelor of Science in Computer Science\n*University Name | 2017 - 2021*',
-    order: 3,
+    content: '### Master of Science in Computer Science | Stanford University\n*2017 - 2019* | GPA: 3.9/4.0\n• Specialization: Distributed Systems and Machine Learning\n• Relevant Coursework: Advanced Algorithms, System Design, ML Theory\n\n### Bachelor of Science in Computer Engineering | UC Berkeley\n*2013 - 2017* | GPA: 3.8/4.0 | Magna Cum Laude',
+    order: 4,
     required: true,
+  },
+  {
+    id: 'achievements',
+    type: 'achievements',
+    title: 'Achievements',
+    content: '• **Patents:** 2 US patents in distributed systems and caching technologies\n• **Publications:** 3 peer-reviewed papers in top-tier conferences (SOSP, OSDI)\n• **Awards:** Employee of the Year 2023, Hackathon Winner (Best Technical Innovation)\n• **Certifications:** AWS Solutions Architect Professional, Google Cloud Professional',
+    order: 5,
+    required: false,
   },
 ];
 
@@ -82,13 +133,13 @@ function App() {
       linkedin: '',
       github: '',
     },
-    template: 'modern',
+    template: 'google-standard',
     customization: {
       primaryColor: '#2563eb',
       secondaryColor: '#4f46e5',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      fontSize: 14,
-      spacing: 1.5,
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 11,
+      spacing: 1.2,
     },
   });
 
@@ -169,8 +220,8 @@ function App() {
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">CV Builder Pro</h1>
-                <p className="text-sm text-gray-600">Create professional resumes in minutes</p>
+                <h1 className="text-2xl font-bold text-gray-900">Google CV Builder</h1>
+                <p className="text-sm text-gray-600">Google-standard resume templates for tech interviews</p>
               </div>
             </div>
             <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -239,13 +290,6 @@ function App() {
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm p-6">
-                  <CustomizationPanel
-                    customization={cvData.customization}
-                    onCustomizationChange={handleCustomizationChange}
-                  />
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
                   <SectionEditor
                     sections={cvData.sections}
                     onSectionsChange={handleSectionsChange}
@@ -271,6 +315,7 @@ function App() {
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="p-4 border-b bg-gray-50">
                 <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
+                <p className="text-sm text-gray-600">Google-optimized format</p>
               </div>
               <div className="p-4">
                 <div
