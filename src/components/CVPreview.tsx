@@ -11,6 +11,10 @@ import GoogleTechnicalTwoColumnTemplate from './templates/GoogleTechnicalTwoColu
 import GoogleSRETwoColumnTemplate from './templates/GoogleSRETwoColumnTemplate';
 import GoogleCompactTemplate from './templates/GoogleCompactTemplate';
 import GoogleExecutiveTemplate from './templates/GoogleExecutiveTemplate';
+import HybridHeaderDualTemplate from './templates/HybridHeaderDualTemplate';
+import TripleSectionTemplate from './templates/TripleSectionTemplate';
+import AsymmetricalTemplate from './templates/AsymmetricalTemplate';
+import TShapedTemplate from './templates/TShapedTemplate';
 
 interface CVPreviewProps {
   sections: CVSection[];
@@ -45,6 +49,14 @@ const CVPreview: React.FC<CVPreviewProps> = ({
         return <GoogleCompactTemplate {...props} />;
       case 'google-executive':
         return <GoogleExecutiveTemplate {...props} />;
+      case 'hybrid-header-dual':
+        return <HybridHeaderDualTemplate {...props} />;
+      case 'triple-section':
+        return <TripleSectionTemplate {...props} />;
+      case 'asymmetrical-70-30':
+        return <AsymmetricalTemplate {...props} />;
+      case 't-shaped-layout':
+        return <TShapedTemplate {...props} />;
       case 'modern':
         return <ModernTemplate {...props} />;
       case 'professional':

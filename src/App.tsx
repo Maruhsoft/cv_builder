@@ -10,6 +10,10 @@ import SectionEditor from './components/SectionEditor';
 import PersonalInfoEditor from './components/PersonalInfoEditor';
 import ExportPanel from './components/ExportPanel';
 import SampleMarkdown from './components/SampleMarkdown';
+import TextFormattingPanel from './components/TextFormattingPanel';
+import { TextFormattingProvider } from './components/TextFormattingProvider';
+import TextSelectionToolbar from './components/TextSelectionToolbar';
+import FormattingPreview from './components/FormattingPreview';
 
 const templates: Template[] = [
   {
@@ -68,6 +72,34 @@ const templates: Template[] = [
     targetRole: 'Engineering Manager / Director',
     preview: '/google-executive-preview.jpg',
   },
+  {
+    id: 'hybrid-header-dual',
+    name: 'Hybrid Header-Dual',
+    description: 'Full-width header with dual-column body and footer',
+    targetRole: 'All Roles',
+    preview: '/hybrid-header-dual-preview.jpg',
+  },
+  {
+    id: 'triple-section',
+    name: 'Triple Section',
+    description: 'Top banner + triple-column middle + single bottom',
+    targetRole: 'Senior Professionals',
+    preview: '/triple-section-preview.jpg',
+  },
+  {
+    id: 'asymmetrical-70-30',
+    name: 'Asymmetrical 70-30',
+    description: 'Modern asymmetrical layout with clean transitions',
+    targetRole: 'Creative & Technical',
+    preview: '/asymmetrical-preview.jpg',
+  },
+  {
+    id: 't-shaped-layout',
+    name: 'T-Shaped Professional',
+    description: 'Wide header + narrow sidebar + main content area',
+    targetRole: 'Management & Leadership',
+    preview: '/t-shaped-preview.jpg',
+  },
 ];
 
 const defaultSections: CVSection[] = [
@@ -121,6 +153,38 @@ const defaultSections: CVSection[] = [
   },
 ];
 
+interface TextFormatting {
+  fontSize: number;
+  fontSizeUnit: 'pt' | 'px';
+  textColor: string;
+  textOpacity: number;
+  outlineColor: string;
+  outlineWidth: number;
+  letterSpacing: number;
+  wordSpacing: number;
+  paragraphIndent: number;
+  lineHeight: number;
+  paragraphSpacingBefore: number;
+  paragraphSpacingAfter: number;
+  columnGap: number;
+}
+
+const defaultTextFormatting: TextFormatting = {
+  fontSize: 12,
+  fontSizeUnit: 'pt',
+  textColor: '#000000',
+  textOpacity: 1,
+  outlineColor: '#000000',
+  outlineWidth: 0,
+  letterSpacing: 0,
+  wordSpacing: 100,
+  paragraphIndent: 0,
+  lineHeight: 1.2,
+  paragraphSpacingBefore: 0,
+  paragraphSpacingAfter: 0,
+  columnGap: 20,
+};
+
 function App() {
   const [cvData, setCvData] = useState<CVData>({
     sections: defaultSections,
@@ -143,17 +207,20 @@ function App() {
     },
   });
 
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview' | 'export'>('edit');
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview' | 'export' | 'formatting'>('edit');
+  const [textFormatting, setTextFormatting] = useState<TextFormatting>(defaultTextFormatting);
+  const [textFormattingPresets, setTextFormattingPresets] = useState<{ [key: string]: TextFormatting }>({});
   const previewRef = useRef<HTMLDivElement>(null);
 
   // Auto-save functionality
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem('cvBuilderData', JSON.stringify(cvData));
+      localStorage.setItem('textFormattingData', JSON.stringify(textFormatting));
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [cvData]);
+  }, [cvData, textFormatting]);
 
   // Load saved data on mount
   useEffect(() => {
@@ -164,6 +231,26 @@ function App() {
         setCvData(parsedData);
       } catch (error) {
         console.error('Error loading saved data:', error);
+      }
+    }
+
+    const savedTextFormatting = localStorage.getItem('textFormattingData');
+    if (savedTextFormatting) {
+      try {
+        const parsedTextFormatting = JSON.parse(savedTextFormatting);
+        setTextFormatting(parsedTextFormatting);
+      } catch (error) {
+        console.error('Error loading text formatting data:', error);
+      }
+    }
+
+    const savedPresets = localStorage.getItem('textFormattingPresets');
+    if (savedPresets) {
+      try {
+        const parsedPresets = JSON.parse(savedPresets);
+        setTextFormattingPresets(parsedPresets);
+      } catch (error) {
+        console.error('Error loading text formatting presets:', error);
       }
     }
   }, []);
@@ -209,133 +296,186 @@ function App() {
     }));
   };
 
+  const handleTextFormattingChange = (key: keyof TextFormatting, value: any) => {
+    setTextFormatting(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleSaveTextFormattingPreset = (name: string, formatting: TextFormatting) => {
+    const newPresets = {
+      ...textFormattingPresets,
+      [name]: { ...formatting },
+    };
+    setTextFormattingPresets(newPresets);
+    localStorage.setItem('textFormattingPresets', JSON.stringify(newPresets));
+  };
+
+  const handleLoadTextFormattingPreset = (formatting: TextFormatting) => {
+    setTextFormatting({ ...formatting });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-600 rounded-lg">
-                <FileText className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Google CV Builder</h1>
-                <p className="text-sm text-gray-600">Google-standard resume templates for tech interviews</p>
-              </div>
-            </div>
-            <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setActiveTab('edit')}
-                className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                  activeTab === 'edit'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Settings className="w-4 h-4" />
-                <span>Edit</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('preview')}
-                className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                  activeTab === 'preview'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Eye className="w-4 h-4" />
-                <span>Preview</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('export')}
-                className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                  activeTab === 'export'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Download className="w-4 h-4" />
-                <span>Export</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Panel */}
-          <div className="space-y-6">
-            {activeTab === 'edit' && (
-              <>
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <FileUpload onFileUpload={handleFileUpload} />
+    <TextFormattingProvider>
+      <div className="min-h-screen bg-gray-100">
+        <TextSelectionToolbar />
+        
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-600 rounded-lg">
+                  <FileText className="w-6 h-6 text-white" />
                 </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <PersonalInfoEditor
-                    personalInfo={cvData.personalInfo}
-                    onPersonalInfoChange={handlePersonalInfoChange}
-                  />
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Maruh CV Builder</h1>
+                  <p className="text-sm text-gray-600">Professional resume templates with advanced formatting</p>
                 </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <TemplateSelector
-                    templates={templates}
-                    selectedTemplate={cvData.template}
-                    onTemplateSelect={handleTemplateSelect}
-                  />
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <SectionEditor
-                    sections={cvData.sections}
-                    onSectionsChange={handleSectionsChange}
-                  />
-                </div>
-
-                <SampleMarkdown />
-              </>
-            )}
-
-            {activeTab === 'export' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <ExportPanel
-                  previewRef={previewRef}
-                  personalInfo={cvData.personalInfo}
-                />
               </div>
-            )}
-          </div>
-
-          {/* Right Panel - Preview */}
-          <div className="lg:sticky lg:top-8 lg:self-start">
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="p-4 border-b bg-gray-50">
-                <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
-                <p className="text-sm text-gray-600">Google-optimized format</p>
-              </div>
-              <div className="p-4">
-                <div
-                  ref={previewRef}
-                  className="transform scale-75 origin-top-left"
-                  style={{ width: '133.33%', height: 'auto' }}
+              <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setActiveTab('edit')}
+                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
+                    activeTab === 'edit'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
-                  <CVPreview
-                    sections={cvData.sections}
-                    personalInfo={cvData.personalInfo}
-                    template={cvData.template}
-                    customization={cvData.customization}
+                  <Settings className="w-4 h-4" />
+                  <span>Edit</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('formatting')}
+                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
+                    activeTab === 'formatting'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Format</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('preview')}
+                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
+                    activeTab === 'preview'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>Preview</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('export')}
+                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
+                    activeTab === 'export'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Export</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Panel */}
+            <div className="space-y-6">
+              {activeTab === 'edit' && (
+                <>
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <FileUpload onFileUpload={handleFileUpload} />
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <PersonalInfoEditor
+                      personalInfo={cvData.personalInfo}
+                      onPersonalInfoChange={handlePersonalInfoChange}
+                    />
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <TemplateSelector
+                      templates={templates}
+                      selectedTemplate={cvData.template}
+                      onTemplateSelect={handleTemplateSelect}
+                    />
+                  </div>
+
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <SectionEditor
+                      sections={cvData.sections}
+                      onSectionsChange={handleSectionsChange}
+                    />
+                  </div>
+
+                  <SampleMarkdown />
+                </>
+              )}
+
+              {activeTab === 'formatting' && (
+                <>
+                  <TextFormattingPanel
+                    formatting={textFormatting}
+                    onFormattingChange={handleTextFormattingChange}
+                    onSavePreset={handleSaveTextFormattingPreset}
+                    onLoadPreset={handleLoadTextFormattingPreset}
+                    presets={textFormattingPresets}
                   />
+                  <FormattingPreview />
+                </>
+              )}
+
+              {activeTab === 'export' && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <ExportPanel
+                    previewRef={previewRef}
+                    personalInfo={cvData.personalInfo}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Right Panel - Preview */}
+            <div className="lg:sticky lg:top-8 lg:self-start">
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="p-4 border-b bg-gray-50">
+                  <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
+                  <p className="text-sm text-gray-600">
+                    {activeTab === 'formatting' 
+                      ? 'Select text to apply formatting' 
+                      : 'Professional resume layout'
+                    }
+                  </p>
+                </div>
+                <div className="p-4">
+                  <div
+                    ref={previewRef}
+                    className="transform scale-75 origin-top-left"
+                    style={{ width: '133.33%', height: 'auto' }}
+                  >
+                    <CVPreview
+                      sections={cvData.sections}
+                      personalInfo={cvData.personalInfo}
+                      template={cvData.template}
+                      customization={cvData.customization}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </TextFormattingProvider>
   );
 }
 
