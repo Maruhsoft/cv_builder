@@ -16,14 +16,31 @@ const AsymmetricalTemplate: React.FC<AsymmetricalTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
-  // 70-30 split organization
+  // 70-30 split organization with placement awareness
   const mainSections = sortedSections.filter(section => 
-    ['professional-summary', 'work-experience', 'projects', 'achievements'].includes(section.type)
+    section.placement === 'main' ||
+    section.placement === 'right-column' ||
+    (!section.placement && ['professional-summary', 'work-experience', 'projects', 'achievements'].includes(section.type))
   );
   
   const sidebarSections = sortedSections.filter(section => 
-    ['technical-skills', 'education', 'certifications', 'languages'].includes(section.type)
+    section.placement === 'sidebar' ||
+    section.placement === 'left-column' ||
+    (!section.placement && ['technical-skills', 'education', 'certifications', 'languages'].includes(section.type))
   );
+
+  // Handle unplaced sections
+  const unplacedSections = sortedSections.filter(section => 
+    !mainSections.includes(section) && !sidebarSections.includes(section)
+  );
+
+  unplacedSections.forEach(section => {
+    if (section.type.includes('skill') || section.type.includes('education')) {
+      sidebarSections.push(section);
+    } else {
+      mainSections.push(section);
+    }
+  });
 
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',

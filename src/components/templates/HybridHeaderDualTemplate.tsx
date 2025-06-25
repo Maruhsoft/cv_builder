@@ -16,22 +16,45 @@ const HybridHeaderDualTemplate: React.FC<HybridHeaderDualTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
-  // Separate sections for different areas
+  // Separate sections for different areas with placement awareness
   const headerSections = sortedSections.filter(section => 
-    ['professional-summary'].includes(section.type)
+    section.placement === 'header' ||
+    (!section.placement && ['professional-summary'].includes(section.type))
   );
   
   const leftColumnSections = sortedSections.filter(section => 
-    ['technical-skills', 'education', 'achievements', 'certifications'].includes(section.type)
+    section.placement === 'sidebar' ||
+    section.placement === 'left-column' ||
+    (!section.placement && ['technical-skills', 'education', 'achievements', 'certifications'].includes(section.type))
   );
   
   const rightColumnSections = sortedSections.filter(section => 
-    ['work-experience', 'projects'].includes(section.type)
+    section.placement === 'main' ||
+    section.placement === 'right-column' ||
+    (!section.placement && ['work-experience', 'projects'].includes(section.type))
   );
 
   const footerSections = sortedSections.filter(section => 
-    ['additional-info', 'references', 'languages'].includes(section.type)
+    section.placement === 'footer' ||
+    (!section.placement && ['additional-info', 'references', 'languages'].includes(section.type))
   );
+
+  // Handle unplaced sections
+  const unplacedSections = sortedSections.filter(section => 
+    !headerSections.includes(section) &&
+    !leftColumnSections.includes(section) &&
+    !rightColumnSections.includes(section) &&
+    !footerSections.includes(section)
+  );
+
+  // Distribute unplaced sections
+  unplacedSections.forEach(section => {
+    if (section.type.includes('skill') || section.type.includes('education')) {
+      leftColumnSections.push(section);
+    } else {
+      rightColumnSections.push(section);
+    }
+  });
 
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',

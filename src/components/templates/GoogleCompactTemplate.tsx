@@ -15,6 +15,10 @@ const GoogleCompactTemplate: React.FC<GoogleCompactTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
+  // For compact template, all sections go in main flow regardless of placement
+  // but we still respect the placement for ordering
+  const allSections = sortedSections;
+
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',
     fontSize: '9px',
@@ -36,7 +40,7 @@ const GoogleCompactTemplate: React.FC<GoogleCompactTemplateProps> = ({
 
       {/* Ultra-compact sections */}
       <div className="space-y-1">
-        {sortedSections.map((section) => (
+        {allSections.map((section) => (
           <div key={section.id} className="section">
             <h2 className="text-xs font-bold text-black inline uppercase mr-2">
               {section.title}:

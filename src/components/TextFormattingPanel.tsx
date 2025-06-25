@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Type, Palette, AlignLeft, Settings, Save, RotateCcw } from 'lucide-react';
+import { Type, Palette, AlignLeft, Settings, Save, RotateCcw, HelpCircle } from 'lucide-react';
 
 interface TextFormatting {
   fontSize: number;
@@ -87,13 +87,22 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Type className="w-5 h-5 mr-2" />
-          Text Formatting
-        </h3>
+        <div className="flex items-center space-x-2">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Type className="w-5 h-5 mr-2" />
+            Text Formatting
+          </h3>
+          <div className="group relative">
+            <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              Advanced text formatting options for fine-tuning your resume appearance
+            </div>
+          </div>
+        </div>
         <button
           onClick={resetToDefaults}
           className="flex items-center px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+          title="Reset all formatting to default values"
         >
           <RotateCcw className="w-4 h-4 mr-1" />
           Reset
@@ -103,23 +112,27 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
       {/* Tab Navigation */}
       <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
         {[
-          { id: 'size', label: 'Size', icon: Type },
-          { id: 'color', label: 'Color', icon: Palette },
-          { id: 'spacing', label: 'Spacing', icon: AlignLeft },
-          { id: 'presets', label: 'Presets', icon: Settings },
+          { id: 'size', label: 'Size', icon: Type, tooltip: 'Font size and scaling options' },
+          { id: 'color', label: 'Color', icon: Palette, tooltip: 'Text color and opacity settings' },
+          { id: 'spacing', label: 'Spacing', icon: AlignLeft, tooltip: 'Letter, word, and paragraph spacing' },
+          { id: 'presets', label: 'Presets', icon: Settings, tooltip: 'Save and load formatting presets' },
         ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex-1 px-3 py-2 rounded-md flex items-center justify-center space-x-1 transition-colors ${
-              activeTab === tab.id
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            <span className="text-sm">{tab.label}</span>
-          </button>
+          <div key={tab.id} className="group relative flex-1">
+            <button
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`w-full px-3 py-2 rounded-md flex items-center justify-center space-x-1 transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span className="text-sm">{tab.label}</span>
+            </button>
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              {tab.tooltip}
+            </div>
+          </div>
         ))}
       </div>
 
@@ -127,9 +140,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
       {activeTab === 'size' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Font Size: {formatting.fontSize}{formatting.fontSizeUnit}
-            </label>
+            <div className="flex items-center space-x-2 mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Font Size: {formatting.fontSize}{formatting.fontSizeUnit}
+              </label>
+              <div className="group relative">
+                <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                  Recommended: 10-12pt for body text, 14-16pt for headings
+                </div>
+              </div>
+            </div>
             <div className="flex items-center space-x-2 mb-3">
               <input
                 type="number"
@@ -187,24 +208,28 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
               <button
                 onClick={() => adjustFontSize(-10)}
                 className="px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                title="Decrease font size by 10%"
               >
                 -10%
               </button>
               <button
                 onClick={() => adjustFontSize(-25)}
                 className="px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                title="Decrease font size by 25%"
               >
                 -25%
               </button>
               <button
                 onClick={() => adjustFontSize(10)}
                 className="px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                title="Increase font size by 10%"
               >
                 +10%
               </button>
               <button
                 onClick={() => adjustFontSize(25)}
                 className="px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                title="Increase font size by 25%"
               >
                 +25%
               </button>
@@ -225,6 +250,7 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
                 className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
                 style={{ backgroundColor: formatting.textColor }}
                 onClick={() => setShowColorPicker(showColorPicker === 'text' ? null : 'text')}
+                title="Click to open color picker"
               />
               <input
                 type="text"
@@ -245,6 +271,7 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
                       onFormattingChange('textColor', color);
                       setShowColorPicker(null);
                     }}
+                    title={color}
                   />
                 ))}
               </div>
@@ -252,9 +279,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Text Opacity: {Math.round(formatting.textOpacity * 100)}%
-            </label>
+            <div className="flex items-center space-x-2 mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Text Opacity: {Math.round(formatting.textOpacity * 100)}%
+              </label>
+              <div className="group relative">
+                <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                  Lower opacity creates lighter, more subtle text
+                </div>
+              </div>
+            </div>
             <input
               type="range"
               min="0"
@@ -275,6 +310,7 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
                 className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
                 style={{ backgroundColor: formatting.outlineColor }}
                 onClick={() => setShowColorPicker(showColorPicker === 'outline' ? null : 'outline')}
+                title="Click to open color picker"
               />
               <input
                 type="text"
@@ -295,6 +331,7 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
                       onFormattingChange('outlineColor', color);
                       setShowColorPicker(null);
                     }}
+                    title={color}
                   />
                 ))}
               </div>
@@ -302,9 +339,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Outline Width: {formatting.outlineWidth}px
-            </label>
+            <div className="flex items-center space-x-2 mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Outline Width: {formatting.outlineWidth}px
+              </label>
+              <div className="group relative">
+                <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                  Text outline for better contrast (use sparingly)
+                </div>
+              </div>
+            </div>
             <input
               type="range"
               min="0"
@@ -323,9 +368,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Letter Spacing: {formatting.letterSpacing}
-              </label>
+              <div className="flex items-center space-x-2 mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Letter Spacing: {formatting.letterSpacing}px
+                </label>
+                <div className="group relative">
+                  <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    Space between individual letters
+                  </div>
+                </div>
+              </div>
               <input
                 type="range"
                 min="-5"
@@ -338,9 +391,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Word Spacing: {formatting.wordSpacing}%
-              </label>
+              <div className="flex items-center space-x-2 mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Word Spacing: {formatting.wordSpacing}%
+                </label>
+                <div className="group relative">
+                  <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    Space between words (100% = normal)
+                  </div>
+                </div>
+              </div>
               <input
                 type="range"
                 min="50"
@@ -353,9 +414,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Paragraph Indent: {formatting.paragraphIndent}px
-              </label>
+              <div className="flex items-center space-x-2 mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Paragraph Indent: {formatting.paragraphIndent}px
+                </label>
+                <div className="group relative">
+                  <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    First line indentation for paragraphs
+                  </div>
+                </div>
+              </div>
               <input
                 type="range"
                 min="0"
@@ -368,9 +437,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Line Height: {formatting.lineHeight}
-              </label>
+              <div className="flex items-center space-x-2 mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Line Height: {formatting.lineHeight}
+                </label>
+                <div className="group relative">
+                  <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    Vertical space between lines (1.2-1.5 recommended)
+                  </div>
+                </div>
+              </div>
               <input
                 type="range"
                 min="0.8"
@@ -414,9 +491,17 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Column Gap: {formatting.columnGap}px
-            </label>
+            <div className="flex items-center space-x-2 mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Column Gap: {formatting.columnGap}px
+              </label>
+              <div className="group relative">
+                <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                  Space between columns in multi-column layouts
+                </div>
+              </div>
+            </div>
             <input
               type="range"
               min="10"
@@ -449,6 +534,7 @@ const TextFormattingPanel: React.FC<TextFormattingPanelProps> = ({
                 onClick={handleSavePreset}
                 disabled={!presetName.trim()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center"
+                title="Save current formatting as a preset"
               >
                 <Save className="w-4 h-4 mr-1" />
                 Save

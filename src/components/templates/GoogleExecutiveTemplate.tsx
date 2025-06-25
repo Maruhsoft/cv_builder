@@ -15,6 +15,33 @@ const GoogleExecutiveTemplate: React.FC<GoogleExecutiveTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
+  // Executive layout with placement awareness
+  const leftColumnSections = sortedSections.filter(section => 
+    section.placement === 'sidebar' ||
+    section.placement === 'left-column' ||
+    (!section.placement && ['technical-skills', 'leadership', 'certifications'].includes(section.type))
+  );
+  
+  const mainSections = sortedSections.filter(section => 
+    section.placement === 'main' ||
+    section.placement === 'right-column' ||
+    (!section.placement && ['professional-summary', 'work-experience', 'achievements', 'projects'].includes(section.type))
+  );
+
+  // Handle unplaced sections
+  const unplacedSections = sortedSections.filter(section => 
+    !leftColumnSections.includes(section) && !mainSections.includes(section)
+  );
+
+  // Add unplaced sections to appropriate columns
+  unplacedSections.forEach(section => {
+    if (section.type.includes('skill') || section.type.includes('education') || section.type.includes('certification')) {
+      leftColumnSections.push(section);
+    } else {
+      mainSections.push(section);
+    }
+  });
+
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',
     fontSize: '11px',
@@ -41,7 +68,7 @@ const GoogleExecutiveTemplate: React.FC<GoogleExecutiveTemplateProps> = ({
       <div className="grid grid-cols-4 gap-4">
         {/* Left sidebar - Leadership & Skills */}
         <div className="space-y-3">
-          {sortedSections.filter(s => ['technical-skills', 'leadership', 'certifications'].includes(s.type)).map((section) => (
+          {leftColumnSections.map((section) => (
             <div key={section.id} className="section">
               <h2 className="text-sm font-bold text-black mb-1 uppercase tracking-wide">
                 {section.title}
@@ -56,7 +83,7 @@ const GoogleExecutiveTemplate: React.FC<GoogleExecutiveTemplateProps> = ({
 
         {/* Main content - Experience & Achievements */}
         <div className="col-span-3 space-y-3">
-          {sortedSections.filter(s => ['professional-summary', 'work-experience', 'achievements', 'projects'].includes(s.type)).map((section) => (
+          {mainSections.map((section) => (
             <div key={section.id} className="section">
               <h2 className="text-sm font-bold text-black mb-2 uppercase tracking-wide border-b border-gray-300">
                 {section.title}

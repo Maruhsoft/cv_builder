@@ -15,6 +15,9 @@ const GoogleSRETemplate: React.FC<GoogleSRETemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
+  // For single column template, all sections go in main flow
+  const allSections = sortedSections;
+
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',
     fontSize: '10px',
@@ -40,7 +43,7 @@ const GoogleSRETemplate: React.FC<GoogleSRETemplateProps> = ({
 
       {/* Maximum density content */}
       <div className="space-y-2">
-        {sortedSections.map((section) => (
+        {allSections.map((section) => (
           <div key={section.id} className="section">
             <h2 className="text-xs font-bold text-black mb-1 uppercase border-b border-gray-400">
               {section.title}
