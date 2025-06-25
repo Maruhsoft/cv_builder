@@ -16,26 +16,54 @@ const TripleSectionTemplate: React.FC<TripleSectionTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
-  // Organize sections into three areas
+  // Organize sections into different areas with placement awareness
   const bannerSections = sortedSections.filter(section => 
-    ['professional-summary'].includes(section.type)
+    section.placement === 'header' ||
+    (!section.placement && ['professional-summary'].includes(section.type))
   );
   
   const leftColumnSections = sortedSections.filter(section => 
-    ['technical-skills', 'certifications'].includes(section.type)
+    section.placement === 'left-column' ||
+    section.placement === 'middle-left' ||
+    (!section.placement && ['technical-skills', 'certifications'].includes(section.type))
   );
   
   const middleColumnSections = sortedSections.filter(section => 
-    ['work-experience', 'projects'].includes(section.type)
+    section.placement === 'middle-center' ||
+    section.placement === 'main' ||
+    (!section.placement && ['work-experience', 'projects'].includes(section.type))
   );
   
   const rightColumnSections = sortedSections.filter(section => 
-    ['education', 'achievements'].includes(section.type)
+    section.placement === 'right-column' ||
+    section.placement === 'middle-right' ||
+    (!section.placement && ['education', 'achievements'].includes(section.type))
   );
 
   const bottomSections = sortedSections.filter(section => 
-    ['additional-info', 'references', 'languages', 'publications'].includes(section.type)
+    section.placement === 'footer' ||
+    (!section.placement && ['additional-info', 'references', 'languages', 'publications'].includes(section.type))
   );
+
+  // Handle unplaced sections
+  const unplacedSections = sortedSections.filter(section => 
+    !bannerSections.includes(section) &&
+    !leftColumnSections.includes(section) &&
+    !middleColumnSections.includes(section) &&
+    !rightColumnSections.includes(section) &&
+    !bottomSections.includes(section)
+  );
+
+  // Distribute unplaced sections
+  unplacedSections.forEach(section => {
+    if (section.type.includes('skill')) {
+      leftColumnSections.push(section);
+    } else if (section.type.includes('education')) {
+      rightColumnSections.push(section);
+    } else {
+      middleColumnSections.push(section);
+    }
+  });
 
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',

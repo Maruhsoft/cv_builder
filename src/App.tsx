@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, Eye, Settings, Download } from 'lucide-react';
+import { FileText, Eye, Settings, Download, Target, Save, Smartphone, HelpCircle } from 'lucide-react';
 import { CVSection, CVData, Template } from './types/cv';
 import { extractSectionsFromMarkdown } from './utils/markdownParser';
 import FileUpload from './components/FileUpload';
@@ -11,6 +11,7 @@ import PersonalInfoEditor from './components/PersonalInfoEditor';
 import ExportPanel from './components/ExportPanel';
 import SampleMarkdown from './components/SampleMarkdown';
 import TextFormattingPanel from './components/TextFormattingPanel';
+import ATSScorePanel from './components/ATSScorePanel';
 import { TextFormattingProvider } from './components/TextFormattingProvider';
 import TextSelectionToolbar from './components/TextSelectionToolbar';
 import FormattingPreview from './components/FormattingPreview';
@@ -110,6 +111,7 @@ const defaultSections: CVSection[] = [
     content: 'Software Engineer with 5+ years building scalable systems. Expert in distributed systems, algorithms, and system design. Led teams of 8+ engineers delivering products used by millions.',
     order: 0,
     required: true,
+    placement: 'main',
   },
   {
     id: 'experience',
@@ -118,6 +120,7 @@ const defaultSections: CVSection[] = [
     content: '### Senior Software Engineer | Meta\n*Jan 2022 - Present*\n• Led development of distributed caching system serving 100M+ requests/day, reducing latency by 40%\n• Designed and implemented microservices architecture supporting 50+ engineering teams\n• Mentored 5 junior engineers, with 100% promotion rate within 18 months\n• Technologies: Java, Python, Kubernetes, Redis, PostgreSQL\n\n### Software Engineer | Amazon\n*Jun 2019 - Dec 2021*\n• Built real-time analytics platform processing 1TB+ data daily with 99.9% uptime\n• Optimized recommendation algorithms improving click-through rates by 25%\n• Collaborated with ML teams to deploy models serving 10M+ customers\n• Technologies: Python, AWS, Spark, DynamoDB, Docker',
     order: 1,
     required: true,
+    placement: 'main',
   },
   {
     id: 'skills',
@@ -126,6 +129,7 @@ const defaultSections: CVSection[] = [
     content: '• **Languages:** Python, Java, C++, JavaScript, Go, SQL\n• **Systems:** AWS, GCP, Kubernetes, Docker, Redis, Kafka, Elasticsearch\n• **Databases:** PostgreSQL, MongoDB, DynamoDB, BigQuery\n• **ML/AI:** TensorFlow, PyTorch, Scikit-learn, Pandas, NumPy\n• **Tools:** Git, Jenkins, Terraform, Prometheus, Grafana',
     order: 2,
     required: true,
+    placement: 'sidebar',
   },
   {
     id: 'projects',
@@ -134,6 +138,7 @@ const defaultSections: CVSection[] = [
     content: '### Distributed Task Scheduler\n*Python, Kubernetes, Redis*\n• Built fault-tolerant task scheduling system handling 1M+ jobs/day\n• Implemented auto-scaling reducing infrastructure costs by 30%\n• **[GitHub](https://github.com/username/task-scheduler)**\n\n### Real-time Chat Application\n*Node.js, WebSocket, MongoDB*\n• Developed chat platform supporting 10K+ concurrent users\n• Implemented end-to-end encryption and message persistence\n• **[Live Demo](https://chat-app-demo.com)**',
     order: 3,
     required: false,
+    placement: 'main',
   },
   {
     id: 'education',
@@ -142,6 +147,7 @@ const defaultSections: CVSection[] = [
     content: '### Master of Science in Computer Science | Stanford University\n*2017 - 2019* | GPA: 3.9/4.0\n• Specialization: Distributed Systems and Machine Learning\n• Relevant Coursework: Advanced Algorithms, System Design, ML Theory\n\n### Bachelor of Science in Computer Engineering | UC Berkeley\n*2013 - 2017* | GPA: 3.8/4.0 | Magna Cum Laude',
     order: 4,
     required: true,
+    placement: 'sidebar',
   },
   {
     id: 'achievements',
@@ -150,6 +156,7 @@ const defaultSections: CVSection[] = [
     content: '• **Patents:** 2 US patents in distributed systems and caching technologies\n• **Publications:** 3 peer-reviewed papers in top-tier conferences (SOSP, OSDI)\n• **Awards:** Employee of the Year 2023, Hackathon Winner (Best Technical Innovation)\n• **Certifications:** AWS Solutions Architect Professional, Google Cloud Professional',
     order: 5,
     required: false,
+    placement: 'sidebar',
   },
 ];
 
@@ -207,17 +214,31 @@ function App() {
     },
   });
 
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview' | 'export' | 'formatting'>('edit');
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview' | 'export' | 'formatting' | 'ats'>('edit');
   const [textFormatting, setTextFormatting] = useState<TextFormatting>(defaultTextFormatting);
   const [textFormattingPresets, setTextFormattingPresets] = useState<{ [key: string]: TextFormatting }>({});
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Auto-save functionality
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-save functionality with improved feedback
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem('cvBuilderData', JSON.stringify(cvData));
       localStorage.setItem('textFormattingData', JSON.stringify(textFormatting));
-    }, 1000);
+      setLastSaved(new Date());
+    }, 2000); // Increased to 2 seconds for better UX
 
     return () => clearTimeout(timer);
   }, [cvData, textFormatting]);
@@ -316,93 +337,119 @@ function App() {
     setTextFormatting({ ...formatting });
   };
 
+  const manualSave = () => {
+    localStorage.setItem('cvBuilderData', JSON.stringify(cvData));
+    localStorage.setItem('textFormattingData', JSON.stringify(textFormatting));
+    setLastSaved(new Date());
+  };
+
   return (
     <TextFormattingProvider>
       <div className="min-h-screen bg-gray-100">
         <TextSelectionToolbar />
         
         {/* Header */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-white shadow-sm border-b sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex items-center space-x-3">
+            <div className="flex justify-between items-center py-3 sm:py-4">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="p-2 bg-blue-600 rounded-lg">
-                  <FileText className="w-6 h-6 text-white" />
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Maruh CV Builder</h1>
-                  <p className="text-sm text-gray-600">Professional resume templates with advanced formatting</p>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Maruh CV Builder</h1>
+                  <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Professional resume templates with advanced formatting</p>
                 </div>
               </div>
-              <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setActiveTab('edit')}
-                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                    activeTab === 'edit'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Settings className="w-4 h-4" />
-                  <span>Edit</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('formatting')}
-                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                    activeTab === 'formatting'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Format</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('preview')}
-                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                    activeTab === 'preview'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Eye className="w-4 h-4" />
-                  <span>Preview</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('export')}
-                  className={`px-4 py-2 rounded-md flex items-center space-x-2 transition-colors ${
-                    activeTab === 'export'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Export</span>
-                </button>
+              
+              <div className="flex items-center space-x-2">
+                {/* Manual Save Button */}
+                <div className="group relative">
+                  <button
+                    onClick={manualSave}
+                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                    title="Save now"
+                  >
+                    <Save className="w-4 h-4" />
+                  </button>
+                  <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    Manual save (auto-saves every 2 seconds)
+                  </div>
+                </div>
+                
+                {/* Mobile indicator */}
+                {isMobile && (
+                  <div className="group relative">
+                    <div className="p-2 text-blue-600">
+                      <Smartphone className="w-4 h-4" />
+                    </div>
+                    <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                      Mobile view active
+                    </div>
+                  </div>
+                )}
+
+                {/* Help Button */}
+                <div className="group relative">
+                  <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                    <HelpCircle className="w-4 h-4" />
+                  </button>
+                  <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 max-w-xs">
+                    Professional CV builder with Google-standard templates, ATS optimization, and advanced formatting
+                  </div>
+                </div>
               </div>
+            </div>
+            
+            {/* Tab Navigation */}
+            <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-3 overflow-x-auto">
+              {[
+                { id: 'edit', label: 'Edit', icon: Settings, tooltip: 'Edit resume content and sections' },
+                { id: 'formatting', label: 'Format', icon: FileText, tooltip: 'Advanced text formatting options' },
+                { id: 'ats', label: 'ATS Score', icon: Target, tooltip: 'Check ATS compatibility and optimization' },
+                { id: 'preview', label: 'Preview', icon: Eye, tooltip: 'Live preview of your resume' },
+                { id: 'export', label: 'Export', icon: Download, tooltip: 'Export to PDF, HTML, or Word' },
+              ].map((tab) => (
+                <div key={tab.id} className="group relative">
+                  <button
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`px-3 py-2 rounded-md flex items-center space-x-1 sm:space-x-2 transition-colors whitespace-nowrap ${
+                      activeTab === tab.id
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    <span className="text-sm">{tab.label}</span>
+                  </button>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    {tab.tooltip}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'lg:grid-cols-2 gap-8'}`}>
             {/* Left Panel */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {activeTab === 'edit' && (
                 <>
-                  <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <FileUpload onFileUpload={handleFileUpload} />
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <PersonalInfoEditor
                       personalInfo={cvData.personalInfo}
                       onPersonalInfoChange={handlePersonalInfoChange}
                     />
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <TemplateSelector
                       templates={templates}
                       selectedTemplate={cvData.template}
@@ -410,10 +457,13 @@ function App() {
                     />
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <SectionEditor
                       sections={cvData.sections}
                       onSectionsChange={handleSectionsChange}
+                      selectedTemplate={cvData.template}
+                      templates={templates}
+                      lastSaved={lastSaved}
                     />
                   </div>
 
@@ -434,8 +484,15 @@ function App() {
                 </>
               )}
 
+              {activeTab === 'ats' && (
+                <ATSScorePanel
+                  sections={cvData.sections}
+                  personalInfo={cvData.personalInfo}
+                />
+              )}
+
               {activeTab === 'export' && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                   <ExportPanel
                     previewRef={previewRef}
                     personalInfo={cvData.personalInfo}
@@ -444,34 +501,56 @@ function App() {
               )}
             </div>
 
-            {/* Right Panel - Preview */}
-            <div className="lg:sticky lg:top-8 lg:self-start">
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div className="p-4 border-b bg-gray-50">
-                  <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
-                  <p className="text-sm text-gray-600">
-                    {activeTab === 'formatting' 
-                      ? 'Select text to apply formatting' 
-                      : 'Professional resume layout'
-                    }
-                  </p>
-                </div>
-                <div className="p-4">
-                  <div
-                    ref={previewRef}
-                    className="transform scale-75 origin-top-left"
-                    style={{ width: '133.33%', height: 'auto' }}
-                  >
-                    <CVPreview
-                      sections={cvData.sections}
-                      personalInfo={cvData.personalInfo}
-                      template={cvData.template}
-                      customization={cvData.customization}
-                    />
+            {/* Right Panel - Preview (Hidden on mobile when not in preview tab) */}
+            {(!isMobile || activeTab === 'preview') && (
+              <div className="lg:sticky lg:top-8 lg:self-start">
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="p-3 sm:p-4 border-b bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900">Live Preview</h3>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          {activeTab === 'formatting' 
+                            ? 'Select text to apply formatting' 
+                            : 'Professional resume layout'
+                          }
+                        </p>
+                      </div>
+                      <div className="group relative">
+                        <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                        <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                          Real-time preview of your resume
+                        </div>
+                      </div>
+                    </div>
+                    {lastSaved && (
+                      <p className="text-xs text-green-600 mt-1">
+                        Auto-saved at {lastSaved.toLocaleTimeString()}
+                      </p>
+                    )}
+                  </div>
+                  <div className="p-2 sm:p-4">
+                    <div
+                      ref={previewRef}
+                      className={`transform origin-top-left ${
+                        isMobile ? 'scale-50' : 'scale-75'
+                      }`}
+                      style={{ 
+                        width: isMobile ? '200%' : '133.33%', 
+                        height: 'auto' 
+                      }}
+                    >
+                      <CVPreview
+                        sections={cvData.sections}
+                        personalInfo={cvData.personalInfo}
+                        template={cvData.template}
+                        customization={cvData.customization}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </main>
       </div>

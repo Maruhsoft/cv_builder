@@ -16,18 +16,38 @@ const TShapedTemplate: React.FC<TShapedTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
-  // T-shaped organization
+  // T-shaped organization with placement awareness
   const headerSections = sortedSections.filter(section => 
-    ['professional-summary'].includes(section.type)
+    section.placement === 'header' ||
+    (!section.placement && ['professional-summary'].includes(section.type))
   );
   
   const sidebarSections = sortedSections.filter(section => 
-    ['technical-skills', 'education', 'certifications'].includes(section.type)
+    section.placement === 'sidebar' ||
+    section.placement === 'left-column' ||
+    (!section.placement && ['technical-skills', 'education', 'certifications'].includes(section.type))
   );
   
   const mainSections = sortedSections.filter(section => 
-    ['work-experience', 'projects', 'achievements'].includes(section.type)
+    section.placement === 'main' ||
+    section.placement === 'right-column' ||
+    (!section.placement && ['work-experience', 'projects', 'achievements'].includes(section.type))
   );
+
+  // Handle unplaced sections
+  const unplacedSections = sortedSections.filter(section => 
+    !headerSections.includes(section) &&
+    !sidebarSections.includes(section) &&
+    !mainSections.includes(section)
+  );
+
+  unplacedSections.forEach(section => {
+    if (section.type.includes('skill') || section.type.includes('education')) {
+      sidebarSections.push(section);
+    } else {
+      mainSections.push(section);
+    }
+  });
 
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',

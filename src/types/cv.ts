@@ -5,6 +5,7 @@ export interface CVSection {
   content: string;
   order: number;
   required: boolean;
+  placement?: string; // Add placement property for template-aware positioning
 }
 
 export interface CVData {
@@ -34,4 +35,18 @@ export interface Template {
   description: string;
   targetRole: string;
   preview: string;
+}
+
+export interface ATSScore {
+  overall: number;
+  breakdown: {
+    keywords: number;
+    formatting: number;
+    sections: number;
+    contact: number;
+    experience: number;
+  };
+  suggestions: string[];
+  keywordMatches: string[];
+  missingKeywords: string[];
 }

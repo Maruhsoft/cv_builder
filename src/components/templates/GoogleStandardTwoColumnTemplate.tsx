@@ -16,14 +16,32 @@ const GoogleStandardTwoColumnTemplate: React.FC<GoogleStandardTwoColumnTemplateP
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
-  // Separate sections for left and right columns
+  // Separate sections based on placement or fallback to type
   const leftColumnSections = sortedSections.filter(section => 
-    ['technical-skills', 'education', 'achievements', 'certifications'].includes(section.type)
+    section.placement === 'sidebar' || 
+    section.placement === 'left-column' ||
+    (!section.placement && ['technical-skills', 'education', 'achievements', 'certifications'].includes(section.type))
   );
   
   const rightColumnSections = sortedSections.filter(section => 
-    ['professional-summary', 'work-experience', 'projects'].includes(section.type)
+    section.placement === 'main' || 
+    section.placement === 'right-column' ||
+    (!section.placement && ['professional-summary', 'work-experience', 'projects'].includes(section.type))
   );
+
+  // Handle sections without specific placement
+  const unplacedSections = sortedSections.filter(section => 
+    !leftColumnSections.includes(section) && !rightColumnSections.includes(section)
+  );
+
+  // Add unplaced sections to appropriate columns
+  unplacedSections.forEach(section => {
+    if (section.type.includes('skill') || section.type.includes('education') || section.type.includes('certification')) {
+      leftColumnSections.push(section);
+    } else {
+      rightColumnSections.push(section);
+    }
+  });
 
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',

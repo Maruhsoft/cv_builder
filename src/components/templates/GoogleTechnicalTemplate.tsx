@@ -15,6 +15,9 @@ const GoogleTechnicalTemplate: React.FC<GoogleTechnicalTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
+  // For single column template, all sections go in main flow
+  const allSections = sortedSections;
+
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',
     fontSize: '10px',
@@ -39,9 +42,9 @@ const GoogleTechnicalTemplate: React.FC<GoogleTechnicalTemplateProps> = ({
         </div>
       </div>
 
-      {/* Two-column layout for maximum space efficiency */}
+      {/* Single column layout for maximum space efficiency */}
       <div className="grid grid-cols-1 gap-2">
-        {sortedSections.map((section) => (
+        {allSections.map((section) => (
           <div key={section.id} className="section">
             <h2 className="text-xs font-bold text-black mb-1 uppercase tracking-wider">
               {section.title}

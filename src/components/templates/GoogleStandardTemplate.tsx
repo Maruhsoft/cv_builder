@@ -16,6 +16,10 @@ const GoogleStandardTemplate: React.FC<GoogleStandardTemplateProps> = ({
 }) => {
   const sortedSections = sections.sort((a, b) => a.order - b.order);
 
+  // For single column template, all sections go in main flow
+  // but we still respect placement for potential future use
+  const allSections = sortedSections;
+
   const templateStyle = {
     fontFamily: 'Arial, sans-serif',
     fontSize: '11px',
@@ -65,7 +69,7 @@ const GoogleStandardTemplate: React.FC<GoogleStandardTemplateProps> = ({
 
       {/* Content - Maximum density */}
       <div className="space-y-3">
-        {sortedSections.map((section) => (
+        {allSections.map((section) => (
           <div key={section.id} className="section">
             <h2 className="text-sm font-bold text-black mb-1 uppercase tracking-wide border-b border-gray-200">
               {section.title}
