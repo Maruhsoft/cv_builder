@@ -108,7 +108,7 @@ const defaultSections: CVSection[] = [
     id: 'summary',
     type: 'professional-summary',
     title: 'Summary',
-    content: `Test text Software Engineer with 5+ years building scalable systems. Expert in distributed systems, algorithms, and system design. Led teams of 8+ engineers delivering products used by millions.`,
+    content: `Software Engineer with 5+ years building scalable systems. Expert in distributed systems, algorithms, and system design. Led teams of 8+ engineers delivering products used by millions.`,
     order: 0,
     required: true,
     placement: 'main',
