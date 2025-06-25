@@ -5,9 +5,10 @@ import { exportToPDF, exportToHTML } from '../utils/pdfExport';
 interface ExportPanelProps {
   previewRef: React.RefObject<HTMLDivElement>;
   personalInfo: any;
+  isMobile?: boolean;
 }
 
-const ExportPanel: React.FC<ExportPanelProps> = ({ previewRef, personalInfo }) => {
+const ExportPanel: React.FC<ExportPanelProps> = ({ previewRef, personalInfo, isMobile = false }) => {
   const handleExportPDF = () => {
     if (previewRef.current) {
       const filename = `${personalInfo.name?.replace(/\s+/g, '_') || 'resume'}_CV.pdf`;
@@ -73,7 +74,7 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ previewRef, personalInfo }) =
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="group relative">
+        <div className={`${isMobile ? 'relative' : 'group relative'}`}>
           <button
             onClick={handleExportPDF}
             className="w-full flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -81,12 +82,14 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ previewRef, personalInfo }) =
             <FileText className="w-5 h-5 mr-2" />
             Export PDF
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-            Best for job applications and ATS systems
-          </div>
+          {!isMobile && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              Best for job applications and ATS systems
+            </div>
+          )}
         </div>
         
-        <div className="group relative">
+        <div className={`${isMobile ? 'relative' : 'group relative'}`}>
           <button
             onClick={handleExportHTML}
             className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -94,12 +97,14 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ previewRef, personalInfo }) =
             <Globe className="w-5 h-5 mr-2" />
             Export HTML
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-            For web portfolios and online sharing
-          </div>
+          {!isMobile && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              For web portfolios and online sharing
+            </div>
+          )}
         </div>
         
-        <div className="group relative">
+        <div className={`${isMobile ? 'relative' : 'group relative'}`}>
           <button
             onClick={handleExportWord}
             className="w-full flex items-center justify-center px-4 py-3 bg-blue-800 text-white rounded-lg hover:bg-blue-900 transition-colors"
@@ -107,11 +112,24 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ previewRef, personalInfo }) =
             <FileType className="w-5 h-5 mr-2" />
             Export Word
           </button>
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-            For further editing in Microsoft Word
-          </div>
+          {!isMobile && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+              For further editing in Microsoft Word
+            </div>
+          )}
         </div>
       </div>
+      
+      {/* Mobile-specific tooltips */}
+      {isMobile && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div className="text-sm text-blue-800 space-y-1">
+            <p><strong>PDF:</strong> Best for job applications and ATS systems</p>
+            <p><strong>HTML:</strong> For web portfolios and online sharing</p>
+            <p><strong>Word:</strong> For further editing in Microsoft Word</p>
+          </div>
+        </div>
+      )}
       
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
         <div className="flex items-start space-x-2">
