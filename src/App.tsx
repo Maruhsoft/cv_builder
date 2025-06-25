@@ -128,7 +128,7 @@ const defaultSections: CVSection[] = [
 ### Software Engineer | Amazon
 
 **Duration:** Jun 2019 – Dec 2021  
-- Built real-time analytics platform processing 1TB+ data daily with 99.9% uptime  
+- Built hhfhfhfhfhfhfhfhfhfhfhfhfhfhfhhhfhfhreal-time analytics platform processing 1TB+ data daily with 99.9% uptime  
 - Optimized recommendation algorithms improving click-through rates by 25%  
 - Collaborated with ML teams to deploy models serving 10M+ customers  
 - **Technologies:** Python, AWS, Spark, DynamoDB, Docker`,
